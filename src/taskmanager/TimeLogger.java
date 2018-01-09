@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  *
- * @author aki
+ * @author Akos Varga
  */
 public class TimeLogger {
     private List<WorkMonth> months;
