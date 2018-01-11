@@ -5,6 +5,7 @@
  */
 package taskmanager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,6 +13,30 @@ import java.util.List;
  * @author Akos Varga
  */
 public class TimeLogger {
-    private List<WorkMonth> months;
+
+    private final List<WorkMonth> months;
     
+    public TimeLogger(){
+        months = new ArrayList<>();
+    }
+
+    public List<WorkMonth> getMonths() {
+        return months;
+    }
+
+    public boolean isNewMonth(WorkMonth monthToCheck) {
+        for (WorkMonth existingMonth : months) {
+            if (existingMonth.getDate().equals(monthToCheck.getDate())) {
+                return false;                
+            }
+        }
+        return true;
+    }
+    
+    public void addNewMonth(WorkMonth monthToAdd){
+        if(isNewMonth(monthToAdd)){
+            months.add(monthToAdd);
+        }
+    }
+
 }
