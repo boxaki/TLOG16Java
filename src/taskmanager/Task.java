@@ -12,29 +12,32 @@ import java.time.LocalTime;
  *
  * @author Akos Varga
  */
-public class Task { 
-    
-    private static final String  VALID_TASKID_1 = "\\d{4}";
-    private static final String  VALID_TASKID_2 = "LT-[\\d{4}]";
-    private static final int QUARTER_HOUR = 15;
+public class Task {
 
-    private final String taskId;
-    private final LocalTime startTime;
-    private final LocalTime endTime;
-    private final String comment;
-    
-    public Task(String taskId, int startHour, int startMinutes, int endHour, int endMinutes, String comment){
-        this(taskId, LocalTime.of(startHour, startMinutes), LocalTime.of(endHour, endMinutes), comment );
+    private static final String VALID_REDMINE_TASKID = "\\d{4}";
+    private static final String VALID_LT_TASKID = "LT-\\d{4}";
+
+    private String taskId;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private String comment;
+
+    public Task(String taskId) {
+        this.taskId = taskId;
     }
-    
-    public Task(String taskId, String startTime, String endTime, String comment){
+
+    public Task(String taskId, int startHour, int startMin, int endHour, int endMinutes, String comment) {
+        this(taskId, LocalTime.of(startHour, startMin), LocalTime.of(endHour, endMinutes), comment);
+    }
+
+    public Task(String taskId, String startTime, String endTime, String comment) {
         this(taskId, LocalTime.parse(startTime), LocalTime.parse(endTime), comment);
     }
-    
-    private Task(String taskId, LocalTime startTime, LocalTime endTime, String comment){
+
+    private Task(String taskId, LocalTime startTime, LocalTime endTime, String comment) {
         this.taskId = taskId;
         this.startTime = startTime;
-        this.endTime = endTime;
+        this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
         this.comment = comment;
     }
 
@@ -53,18 +56,50 @@ public class Task {
     public String getComment() {
         return comment;
     }
-    
-    public long getMinPerTask(){
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public void setStartTime(int startHour, int startMin) {
+        this.startTime = LocalTime.of(startHour, startMin);
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = LocalTime.parse(startTime);
+    }
+
+    public void setEndTime(int endHour, int endMin) {
+        this.endTime = LocalTime.of(endHour, endMin);
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = LocalTime.parse(endTime);
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public long getMinPerTask() {
         return Duration.between(startTime, endTime).toMinutes();
     }
-    
-    public boolean isValidTaskId(){
-        return taskId.matches(VALID_TASKID_1) || taskId.matches(VALID_TASKID_2);
+
+    public boolean isValidTaskId() {
+        return isValidRedmineTaskId() || isValidLTTaskId();
     }
-    
-    public boolean isMultipleQuarterHour(){
-        return getMinPerTask()%QUARTER_HOUR == 0;
+
+    private boolean isValidRedmineTaskId() {
+        return taskId.matches(VALID_REDMINE_TASKID);
     }
-    
-        
+
+    private boolean isValidLTTaskId() {
+        return taskId.matches(VALID_LT_TASKID);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" + "taskId=" + taskId + ", startTime=" + startTime + ", endTime=" + endTime + ", comment=" + comment + '}';
+    }
+
 }

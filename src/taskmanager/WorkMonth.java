@@ -53,12 +53,13 @@ public class WorkMonth {
     }
 
     public boolean isNewDate(WorkDay newWorkDay) {
-        for (WorkDay existingWorkDay : days) {
-            if (existingWorkDay.getActualDay().equals(newWorkDay.getActualDay())) {
-                return false;
-            }
-        }
-        return true;
+   
+        WorkDay matchingDay = days.stream()
+                .filter(existingDay -> existingDay.getActualDay().equals(newWorkDay.getActualDay()))
+                .findFirst()
+                .orElse(null);
+        
+        return matchingDay == null;
     }
     
     public boolean isSameMonth(WorkDay newWorkDay){
@@ -72,7 +73,7 @@ public class WorkMonth {
     }
 
     public void addWorkDay(WorkDay wd, boolean isWeekendEnabled){
-        if(isWeekendEnabled || wd.isWeekday()){
+        if(isWeekendEnabled || Util.isWeekday(wd.getActualDay())){
             if(isSameMonth(wd) && isNewDate(wd)){
                 days.add(wd);
                 sumPerMonth += wd.getSumPerDay();

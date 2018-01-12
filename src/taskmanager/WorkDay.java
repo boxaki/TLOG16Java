@@ -5,9 +5,7 @@
  */
 package taskmanager;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +16,10 @@ import java.util.List;
 public class WorkDay {
 
     private final static int DEFAULT_REQUIRED_MIN_PER_DAY = 450;
+    
     private final List<Task> tasks;
-    private final long requiredMinPerDay;
-    private final LocalDate actualDay;
+    private long requiredMinPerDay;
+    private LocalDate actualDay;
     private long sumPerDay;
 
     public WorkDay() {
@@ -46,6 +45,10 @@ public class WorkDay {
         this.sumPerDay = 0;
     }
 
+    public List<Task> getTasks() {
+        return tasks;
+    }
+    
     public long getRequiredMinPerDay() {
         return requiredMinPerDay;
     }
@@ -61,38 +64,21 @@ public class WorkDay {
     public long getExtraMinPerDay() {
         return getSumPerDay() - getRequiredMinPerDay();
     }
-
-    public boolean isSepatedTime(Task t) {
-        LocalTime actualTaskStartTime;
-        LocalTime actualTaskEndTime;
-        LocalTime tasksStartTime = t.getStartTime();
-        LocalTime tasksEndTime = t.getEndTime();
-
-        for (Task actualTask : tasks) {
-            actualTaskStartTime = actualTask.getStartTime();
-            actualTaskEndTime = actualTask.getEndTime();
-            if (isBetween(actualTaskStartTime, actualTaskEndTime, tasksStartTime) && isBetween(actualTaskStartTime, actualTaskEndTime, tasksStartTime)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean isBetween(LocalTime startTime, LocalTime endTime, LocalTime timeToCompare) {
-        return !timeToCompare.isBefore(startTime) && !timeToCompare.isAfter(endTime);
-    }
     
+    public void setRequiredMinPerDay(long requiredMinPerDay) {
+        this.requiredMinPerDay = requiredMinPerDay;
+    }
+
+    public void setActualDay(int year, int month, int day) {
+        this.actualDay = LocalDate.of(year, month, day);
+    }
+   
     public void addTask(Task t) {
-        if(t.isMultipleQuarterHour() && isSepatedTime(t)){
+        if(Util.isMultipleQuarterHour(t.getMinPerTask()) && Util.isSepatedTime(t, tasks)){
+            System.out.println("adding task");
             tasks.add(t);
             sumPerDay += t.getMinPerTask();
         }                
     }
-    
-    public boolean isWeekday(){
-        DayOfWeek day = actualDay.getDayOfWeek();
-        return day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY ;
-    }
-    
-
+  
 }
