@@ -62,19 +62,27 @@ public class Task {
     }
 
     public void setStartTime(int startHour, int startMin) {
-        this.startTime = LocalTime.of(startHour, startMin);
+        setStartTime(LocalTime.of(startHour, startMin));
     }
 
     public void setStartTime(String startTime) {
-        this.startTime = LocalTime.parse(startTime);
+        setStartTime(LocalTime.parse(startTime));
+    }
+    
+    public void setStartTime(LocalTime startTime){        
+        this.startTime = startTime;
     }
 
     public void setEndTime(int endHour, int endMin) {
-        this.endTime = LocalTime.of(endHour, endMin);
+        setEndTime(LocalTime.of(endHour, endMin));
     }
 
     public void setEndTime(String endTime) {
-        this.endTime = LocalTime.parse(endTime);
+        setEndTime(LocalTime.parse(endTime));
+    }
+    
+    public void setEndTime(LocalTime endTime){
+        this.endTime = endTime;
     }
 
     public void setComment(String comment) {
@@ -97,9 +105,14 @@ public class Task {
         return taskId.matches(VALID_LT_TASKID);
     }
 
+    // .format
     @Override
-    public String toString() {
-        return "Task{" + "taskId=" + taskId + ", startTime=" + startTime + ", endTime=" + endTime + ", comment=" + comment + '}';
+    public String toString() {  
+        String end = "-";
+        if(endTime != null){
+            end = endTime.toString();
+        }               
+        return String.format("Id:%12s started:%-10s finished:%-10s \"%s\"", taskId, startTime.toString(), end, comment);
     }
 
 }
