@@ -7,6 +7,8 @@ package taskmanager;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -37,10 +39,19 @@ public class WorkMonth {
     }
 
     public long getSumPerMonth() {
+        
+        sumPerMonth =0;
+        for(WorkDay day : days){           
+            sumPerMonth += day.getSumPerDay();
+        }
         return sumPerMonth;
     }
 
     public long getRequiredMinPerMonth() {
+        requiredMinPerMonth = 0;
+        for(WorkDay wd : days){
+            requiredMinPerMonth += wd.getRequiredMinPerDay();
+        }
         return requiredMinPerMonth;
     }
 
@@ -53,32 +64,34 @@ public class WorkMonth {
     }
 
     public boolean isNewDate(WorkDay newWorkDay) {
-   
+
         WorkDay matchingDay = days.stream()
                 .filter(existingDay -> existingDay.getActualDay().equals(newWorkDay.getActualDay()))
                 .findFirst()
                 .orElse(null);
-        
+
         return matchingDay == null;
     }
-    
-    public boolean isSameMonth(WorkDay newWorkDay){
+
+    public boolean isSameMonth(WorkDay newWorkDay) {
         YearMonth newWorkDayYearMonth = YearMonth.from(newWorkDay.getActualDay());
-        
+
         return newWorkDayYearMonth.equals(date);
     }
-    
-    public void addWorkDay(WorkDay wd){
-        addWorkDay(wd, WEEKEND_DISABLED);
+
+    public void addWorkDay(WorkDay wd) {
+        addWorkDay(wd, WEEKEND_DISABLED);      
+
     }
 
-    public void addWorkDay(WorkDay wd, boolean isWeekendEnabled){
-        if(isWeekendEnabled || Util.isWeekday(wd.getActualDay())){
-            if(isSameMonth(wd) && isNewDate(wd)){
+    public void addWorkDay(WorkDay wd, boolean isWeekendEnabled) {
+        if (isWeekendEnabled || Util.isWeekday(wd.getActualDay())) {
+            if (isSameMonth(wd) && isNewDate(wd)) {
+                
                 days.add(wd);
-                sumPerMonth += wd.getSumPerDay();
-                requiredMinPerMonth += wd.getRequiredMinPerDay();
+                Collections.sort(days, Comparator.comparing(WorkDay::getActualDay));
+                 
             }
-        }        
+        }
     }
 }

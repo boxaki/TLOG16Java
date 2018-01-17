@@ -6,6 +6,8 @@
 package taskmanager;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,7 +26,7 @@ public class TimeLogger {
         return months;
     }
 
-    public boolean isNewMonth(WorkMonth monthToCheck) {
+    private boolean isNewMonth(WorkMonth monthToCheck) {
         for (WorkMonth existingMonth : months) {
             if (existingMonth.getDate().equals(monthToCheck.getDate())) {
                 return false;                
@@ -35,7 +37,10 @@ public class TimeLogger {
     
     public void addNewMonth(WorkMonth monthToAdd){
         if(isNewMonth(monthToAdd)){
+            
             months.add(monthToAdd);
+            Collections.sort(months, Comparator.comparing(WorkMonth::getDate));
+            
         }
     }
 
