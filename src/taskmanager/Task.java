@@ -105,7 +105,7 @@ public class Task {
         return taskId.matches(VALID_LT_TASKID);
     }
 
-    // .format
+    
     @Override
     public String toString() {  
         String end = "-";
