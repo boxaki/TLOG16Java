@@ -5,10 +5,24 @@
  */
 package timelogger;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import timelogger.excetions.EmptyTimeFieldException;
+import timelogger.excetions.FutureWorkException;
+import timelogger.excetions.InvalidTaskIdException;
+import timelogger.excetions.NegativeMinutesOfWorkException;
+import timelogger.excetions.NoTaskIdException;
+import timelogger.excetions.NotExpectedTimeOrderException;
+import timelogger.excetions.NotNewDateException;
+import timelogger.excetions.NotNewMonthException;
+import timelogger.excetions.NotSeparatedTimesException;
+import timelogger.excetions.NotTheSameMonthException;
+import timelogger.excetions.WeekendNotEnabledException;
 
 /**
  *
@@ -19,17 +33,16 @@ public class TimeLoggerUI {
     private static final int INVALID_INPUT = -1;
     private static final float DEFAULT_WORK_HOURS = 7.5f;
     private static final int MIN_ACCEPTED_YEAR = 2000;
-    private static final int MAX_ACCEPTED_YEAR = 2100;
+    private static final int MAX_ACCEPTED_YEAR = LocalDate.now().getYear();
     private static final String STATISTICS_OUTPUT_FORMAT = "%18s %18s %18s %18s\n";
     private static TimeLogger timelogger;
-    private static List<Task> unfinishedTasks;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         init();
-        
+
         int choice;
         do {
             printMainMenu();
@@ -42,7 +55,6 @@ public class TimeLoggerUI {
 
     private static void init() {
         timelogger = new TimeLogger();
-        unfinishedTasks = new ArrayList<>();
     }
 
     private static void printMainMenu() {
@@ -57,10 +69,10 @@ public class TimeLoggerUI {
         System.out.println("8. Delete a task");
         System.out.println("9. Modify task");
         System.out.println("10. Statistics");
-      
+
     }
 
-    private static void selectOption(int choice) {
+    private static void selectOption(int choice) { 
 
         switch (choice) {
             case 0:
@@ -82,7 +94,7 @@ public class TimeLoggerUI {
                 }
                 break;
             case 4:
-                addNewMonth();
+                addMonth();
                 break;
             case 5:
                 addDayToMonth(selectMonth());
@@ -97,13 +109,10 @@ public class TimeLoggerUI {
                 deleteTask(selectDay(selectMonth()));
                 break;
             case 9:
-                modifyTask(selectDay(selectMonth()));
+                modifyTaskOrFindError(selectDay(selectMonth()));
                 break;
             case 10:
-                getStatistics(selectMonth());
-                break;
-            case 11:
-                System.out.println("no test");
+                printStatistics(selectMonth());
                 break;
 
         }
@@ -136,7 +145,7 @@ public class TimeLoggerUI {
         }
 
         int index = 1;
-        for (WorkDay wd : days) {
+        for (WorkDay wd : days) {            
             System.out.println(index++ + ". " + wd.getActualDay().toString());
         }
 
@@ -163,67 +172,109 @@ public class TimeLoggerUI {
 
     }
 
-    private static void addNewMonth() {
+    private static void addMonth() {
+        try {
+            addNewMonth();
+        } catch (NotNewMonthException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 
+    private static void addNewMonth() throws NotNewMonthException {
         int year = getValidIntInput(MIN_ACCEPTED_YEAR, MAX_ACCEPTED_YEAR, "year: ");
         int month = getValidIntInput(1, 12, "month: ");
         timelogger.addNewMonth(new WorkMonth(year, month));
     }
 
     private static void addDayToMonth(WorkMonth selectedMonth) {
+        try {
+            addNewDayToMonth(selectedMonth);
+        } catch (NegativeMinutesOfWorkException | NotTheSameMonthException | NotNewDateException | WeekendNotEnabledException | FutureWorkException ex) {
+            System.out.println("Could not add day!");
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private static void addNewDayToMonth(WorkMonth selectedMonth) throws NegativeMinutesOfWorkException, FutureWorkException, NotNewDateException, WeekendNotEnabledException, NotTheSameMonthException {
 
         if (selectedMonth != null) {
             int day = getValidIntInput(1, selectedMonth.getDate().lengthOfMonth(), "day: ");
-            int minutes = getValidHrToMin();
-
-            WorkDay newDay = new WorkDay(minutes, selectedMonth.getDate().getYear(), selectedMonth.getDate().getMonthValue(), day);
+            WorkDay newDay = new WorkDay(selectedMonth.getDate().getYear(), selectedMonth.getDate().getMonthValue(), day);
             selectedMonth.addWorkDay(newDay);
+
+            int minutes = getValidHrToMin();
+            newDay.setRequiredMinPerDay(minutes);
         }
     }
 
     private static void startTask(WorkDay selectedDay) {
+        try {
+            startNewTask(selectedDay);
+        } catch (NotExpectedTimeOrderException | EmptyTimeFieldException | NotSeparatedTimesException ex) {
+            System.out.println(ex.getMessage());
+        }
 
+    }
+
+    private static void startNewTask(WorkDay selectedDay) throws NotExpectedTimeOrderException, EmptyTimeFieldException, NotSeparatedTimesException {
         if (selectedDay == null) {
             return;
         }
 
-        String taskId = getStringInput("task id: ");
-        Task newTask = new Task(taskId);
+        String taskId;
+        Task newTask;
+        while (true) {
+            taskId = getStringInput("task id: ");
+            try {
+                newTask = new Task(taskId);
+            } catch (InvalidTaskIdException | NoTaskIdException ex) {
+                System.out.println("Task id consists of four digits or the characters \"LT-\" plus four digits.");
+                continue;
+            }
+            break;
+        }
 
-        String comment = getStringInput( "task description: ");
+        String comment = getStringInput("task description: ");
         newTask.setComment(comment);
 
-        LocalTime latestTaskFinishedAt = selectedDay.getLatestTaskEndTime();
+        LocalTime latestTaskFinishedAt = selectedDay.getEndTimeOfLatestTask();
         String startTime = latestTaskFinishedAt != null ? latestTaskFinishedAt.toString() : "";
-        startTime = getValidTimeFormat("start time" + ( !startTime.isEmpty() ? "[" + startTime + "]: " : ": "), startTime);
+        startTime = getValidTimeFormat("start time" + (!startTime.isEmpty() ? "[" + startTime + "]: " : ": "), startTime);
 
         newTask.setStartTime(startTime);
-        unfinishedTasks.add(newTask);
+        newTask.setEndTime(startTime);
+        selectedDay.addTask(newTask);
     }
 
     private static void finishTask(WorkDay selectedDay) {
+        try {
+            finishNewTask(selectedDay);
+        } catch (NotExpectedTimeOrderException | EmptyTimeFieldException | NotSeparatedTimesException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private static void finishNewTask(WorkDay selectedDay) throws NotExpectedTimeOrderException, EmptyTimeFieldException, NotSeparatedTimesException {
         if (selectedDay == null) {
             return;
         }
-
-        if (unfinishedTasks.isEmpty()) {
-            System.out.println("No task have been started yet");
+        Task selectedTask = selectUnfinishedTask(selectedDay);
+        if (selectedTask == null) {
             return;
         }
 
-        int index = 1;
-        for (Task t : unfinishedTasks) {
-            System.out.println(index++ + ". " + t);
+        String endTime = getValidTimeFormat("finish time(HH:MM): ");
+        selectedTask.setEndTime(endTime);
+
+        selectedDay.getTasks().remove(selectedTask);
+        if (Util.isSeparatedTime(selectedTask, selectedDay.getTasks())) {
+            selectedDay.addTask(selectedTask);
+        } else {
+            System.out.println("Could not finish task! It would be in the time interval of an other task.");
+            selectedTask.setEndTime(selectedTask.getStartTime());
+            selectedDay.addTask(selectedTask);
         }
 
-        int selected = getValidIntInput(1, unfinishedTasks.size(), "task index: ") - 1;
-        Task selectedTask = unfinishedTasks.get(selected);
-
-        String endTime = getValidTimeFormat("finish time: ");
-        selectedTask.setEndTime(Util.roundToMultipleQuarterHour(selectedTask.getStartTime(), LocalTime.parse(endTime)));
-        
-        selectedDay.addTask(selectedTask);
-        unfinishedTasks.remove(selectedTask);        
     }
 
     private static void deleteTask(WorkDay selectedDay) {
@@ -231,7 +282,7 @@ public class TimeLoggerUI {
             return;
         }
         Task selectedTask = selectTask(selectedDay);
-        if(selectedTask == null){
+        if (selectedTask == null) {
             return;
         }
 
@@ -246,13 +297,24 @@ public class TimeLoggerUI {
                 break;
             }
         }
-
     }
 
-    private static void modifyTask(WorkDay selectedDay) {
+    private static void modifyTaskOrFindError(WorkDay selectedDay) {
+        try {
+            modifyTask(selectedDay);
+        } catch (InvalidTaskIdException | NotExpectedTimeOrderException | EmptyTimeFieldException | NoTaskIdException | NotSeparatedTimesException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private static void modifyTask(WorkDay selectedDay) throws InvalidTaskIdException, NotExpectedTimeOrderException, EmptyTimeFieldException, NoTaskIdException, NotSeparatedTimesException {
 
         Task selectedTask = selectTask(selectedDay);
         if (selectedTask == null) {
+            return;
+        }
+        if (selectedTask.getStartTime().equals(selectedTask.getEndTime())) {
+            System.out.println("You cannot modify unfinished tasks!");
             return;
         }
 
@@ -268,22 +330,30 @@ public class TimeLoggerUI {
         String end = selectedTask.getEndTime().toString();
         LocalTime newEndTime = LocalTime.parse(getValidTimeFormat("end time[" + end + "]: ", end));
 
-        newEndTime = Util.roundToMultipleQuarterHour(newStartTime, newEndTime);
-
         if (!newStartTime.equals(selectedTask.getStartTime()) || !newEndTime.equals(selectedTask.getEndTime())) {
             Task newTask = new Task(taskId, newStartTime.toString(), newEndTime.toString(), comment);
 
             selectedDay.getTasks().remove(selectedTask);
-            if (Util.isSepatedTime(newTask, selectedDay.getTasks())) {
+
+            if (Util.isSeparatedTime(newTask, selectedDay.getTasks())) {
                 selectedDay.addTask(newTask);
-            }
-            else{
+            } else {
+                System.out.println("Could not modify times! ");
                 selectedDay.addTask(selectedTask);
-            }                
+            }
+
         }
     }
 
-    private static void getStatistics(WorkMonth selectedMonth) {
+    private static void printStatistics(WorkMonth selectedMonth) {
+        try {
+            printStatisticsForDaysAndMonthOf(selectedMonth);
+        } catch (EmptyTimeFieldException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private static void printStatisticsForDaysAndMonthOf(WorkMonth selectedMonth) throws EmptyTimeFieldException {
         if (selectedMonth == null) {
             return;
         }
@@ -293,15 +363,15 @@ public class TimeLoggerUI {
             return;
         }
 
-        System.out.printf(STATISTICS_OUTPUT_FORMAT, "month", "required minutes", "minutes done", "extra minutes");      
+        System.out.printf(STATISTICS_OUTPUT_FORMAT, "month", "required minutes", "minutes done", "extra minutes");
         System.out.printf(STATISTICS_OUTPUT_FORMAT, selectedMonth.getDate(), selectedMonth.getRequiredMinPerMonth(), selectedMonth.getSumPerMonth(), selectedMonth.getExtraMinPerMonth());
 
         System.out.printf(STATISTICS_OUTPUT_FORMAT, "day", "required minutes", "minutes done", "extra minutes");
-        for (WorkDay day : daysOfMonth) {         
+        for (WorkDay day : daysOfMonth) {
             System.out.printf(STATISTICS_OUTPUT_FORMAT, day.getActualDay(), day.getRequiredMinPerDay(), day.getSumPerDay(), day.getExtraMinPerDay());
         }
     }
-    
+
     public static String getStringInput(String textToDisplay) {
         return getStringInput(textToDisplay, "");
     }
@@ -335,8 +405,8 @@ public class TimeLoggerUI {
             }
         }
         return INVALID_INPUT;
-    }    
-    
+    }
+
     private static int getValidIntInput(int minValue, int maxValue, String inputText) {
         int choice = INVALID_INPUT;
         do {
@@ -346,8 +416,8 @@ public class TimeLoggerUI {
 
         return choice;
     }
-    
-    private static String getValidTimeFormat(String textToDisplay){
+
+    private static String getValidTimeFormat(String textToDisplay) {
         return getValidTimeFormat(textToDisplay, "");
     }
 
@@ -368,12 +438,12 @@ public class TimeLoggerUI {
 
     private static int getValidHrToMin() {
 
-        String input;        
+        String input;
         do {
             input = getStringInput("Required working hours [default 7.5]:", "" + DEFAULT_WORK_HOURS);
-            
+
         } while (!input.matches("1{0,1}\\d(.\\d{1,2}){0,1}"));
-        
+
         return (int) (Float.parseFloat(input) * 60);
     }
 
@@ -408,6 +478,38 @@ public class TimeLoggerUI {
 
         int selected = getValidIntInput(1, numberOfTasks, "select a task: ") - 1;
         return selectedDay.getTasks().get(selected);
+    }
+
+    private static Task selectUnfinishedTask(WorkDay selectedDay) throws EmptyTimeFieldException {
+
+        List<Task> unfinishedTasks = getUnfinishedTasksOn(selectedDay);
+        if (unfinishedTasks.isEmpty()) {
+            System.out.println("No task has been added yet!");
+            return null;
+        }
+        listUnfinishedTasks(unfinishedTasks);
+
+        int selected = getIntInput(1, unfinishedTasks.size(), "Select task: ") - 1;
+        return unfinishedTasks.get(selected);
+    }
+
+    private static List<Task> getUnfinishedTasksOn(WorkDay selectedDay) throws EmptyTimeFieldException {
+        List<Task> unfinishedTasks = new ArrayList<>();
+        List<Task> allTasksForTheDay = selectedDay.getTasks();
+        for (Task t : allTasksForTheDay) {
+            if (t.getMinPerTask() == 0) {
+                unfinishedTasks.add(t);
+            }
+        }
+        return unfinishedTasks;
+    }
+
+    private static void listUnfinishedTasks(List<Task> unfinishedTasks) {
+        int index = 1;
+        for (Task t : unfinishedTasks) {
+            System.out.println(index++ + ". " + t.toString());
+        }
+
     }
 
     private static void pressEnterToContinue() {

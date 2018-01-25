@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import timelogger.excetions.NotNewMonthException;
 
 /**
  *
@@ -35,13 +36,15 @@ public class TimeLogger {
         return true;
     }
     
-    public void addNewMonth(WorkMonth monthToAdd){
-        if(isNewMonth(monthToAdd)){
-            
+    public void addNewMonth(WorkMonth monthToAdd) throws NotNewMonthException{
+        if(isNewMonth(monthToAdd)){            
             months.add(monthToAdd);
             Collections.sort(months, Comparator.comparing(WorkMonth::getDate));
             
+        }else{
+            throw new NotNewMonthException("Month already exists!");
         }
+        
     }
 
 }

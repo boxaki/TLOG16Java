@@ -7,6 +7,10 @@ package timelogger;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import timelogger.excetions.EmptyTimeFieldException;
+import timelogger.excetions.InvalidTaskIdException;
+import timelogger.excetions.NoTaskIdException;
+import timelogger.excetions.NotExpectedTimeOrderException;
 
 /**
  *
@@ -22,97 +26,127 @@ public class Task {
     private LocalTime endTime;
     private String comment;
 
-    public Task(String taskId) {
-        this.taskId = taskId;
+    public Task(String taskId) throws InvalidTaskIdException, NoTaskIdException {
+        setTaskId(taskId);
     }
 
-    public Task(String taskId, int startHour, int startMin, int endHour, int endMinutes, String comment) {
-        this(taskId, LocalTime.of(startHour, startMin), LocalTime.of(endHour, endMinutes), comment);
+    public Task(String taskId, String startTime, String endTime, String comment) throws NotExpectedTimeOrderException, EmptyTimeFieldException, InvalidTaskIdException, NoTaskIdException {
+        this(taskId);
+        setStartTime(startTime);
+        if (endTime == null) {
+            throw new EmptyTimeFieldException("Missing end time!");
+        }
+        setEndTime(endTime);
+        setComment(comment);
     }
 
-    public Task(String taskId, String startTime, String endTime, String comment) {
-        this(taskId, LocalTime.parse(startTime), LocalTime.parse(endTime), comment);
-    }
-
-    private Task(String taskId, LocalTime startTime, LocalTime endTime, String comment) {
-        this.taskId = taskId;
-        this.startTime = startTime;
-        this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
-        this.comment = comment;
+    public Task(String taskId, int startHour, int startMin, int endHour, int endMin, String comment) throws NotExpectedTimeOrderException, EmptyTimeFieldException, InvalidTaskIdException, NoTaskIdException {
+        this(taskId, String.format("%02d:%02d", startHour, startMin), String.format("%02d:%02d", endHour, endMin), comment);
     }
 
     public String getTaskId() {
         return taskId;
     }
 
-    public LocalTime getStartTime() {
+    public final void setTaskId(String taskId) throws InvalidTaskIdException, NoTaskIdException {
+        if (taskId == null) {
+            throw new NoTaskIdException("Missing task id!");
+        }
+        if (!isValidTaskId(taskId)) {
+            throw new InvalidTaskIdException("Invalid task id!");
+        }
+        this.taskId = taskId;
+    }
+
+    public static boolean isValidTaskId(String taskId) {
+        return isValidRedmineTaskId(taskId) || isValidLTTaskId(taskId);
+    }
+
+    private static boolean isValidRedmineTaskId(String taskId) {
+        return taskId.matches(VALID_REDMINE_TASKID);
+    }
+
+    private static boolean isValidLTTaskId(String taskId) {
+        return taskId.matches(VALID_LT_TASKID);
+    }
+
+    public LocalTime getStartTime(){       
         return startTime;
     }
 
-    public LocalTime getEndTime() {
+    public void setStartTime(int startHour, int startMin) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
+        setStartTime(LocalTime.of(startHour, startMin));
+    }
+
+    public final void setStartTime(String startTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
+        setStartTime(LocalTime.parse(startTime));
+    }
+
+    public final void setStartTime(LocalTime startTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
+        if (endTime == null) {
+            this.startTime = startTime;
+        } else if (!startTime.isAfter(this.endTime)) {
+            this.startTime = startTime;
+            endTime = Util.roundToMultipleQuarterHour(this.startTime, endTime); 
+        } else {
+            throw new NotExpectedTimeOrderException("Start time must not be later than end time!");
+        }
+    }
+
+    public LocalTime getEndTime() throws EmptyTimeFieldException {
+        if (endTime == null) {
+            throw new EmptyTimeFieldException("Missing end time");
+        }
         return endTime;
+    }
+
+    public void setEndTime(int endHour, int endMin) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
+        setEndTime(LocalTime.of(endHour, endMin));
+    }
+
+    public final void setEndTime(String endTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException { 
+        if (endTime == null) {
+            throw new EmptyTimeFieldException("Missing end time!");
+        }
+        setEndTime(LocalTime.parse(endTime));
+    }
+
+    public final void setEndTime(LocalTime endTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
+        
+        if (!startTime.isAfter(endTime)) {
+            this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
+        } else {
+            throw new NotExpectedTimeOrderException("Start time must not be later than end time!");
+        }
+
+        this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
     }
 
     public String getComment() {
         return comment;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setStartTime(int startHour, int startMin) {
-        setStartTime(LocalTime.of(startHour, startMin));
-    }
-
-    public void setStartTime(String startTime) {
-        setStartTime(LocalTime.parse(startTime));
-    }
-    
-    public void setStartTime(LocalTime startTime){        
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(int endHour, int endMin) {
-        setEndTime(LocalTime.of(endHour, endMin));
-    }
-
-    public void setEndTime(String endTime) {
-        setEndTime(LocalTime.parse(endTime));
-    }
-    
-    public void setEndTime(LocalTime endTime){
-        this.endTime = endTime;
-    }
-
-    public void setComment(String comment) {
+    public final void setComment(String comment) {
+        if (comment == null) {
+            comment = "";
+        }
         this.comment = comment;
     }
 
-    public long getMinPerTask() {
-        return Duration.between(startTime, endTime).toMinutes();
-    }
+    public long getMinPerTask() throws EmptyTimeFieldException {
+        LocalTime taskStartTime = getStartTime();
+        LocalTime taskEndTime = getEndTime();
 
-    public boolean isValidTaskId() {
-        return isValidRedmineTaskId() || isValidLTTaskId();
+        return Duration.between(taskStartTime, taskEndTime).toMinutes();
     }
-
-    private boolean isValidRedmineTaskId() {
-        return taskId.matches(VALID_REDMINE_TASKID);
-    }
-
-    private boolean isValidLTTaskId() {
-        return taskId.matches(VALID_LT_TASKID);
-    }
-
     
     @Override
-    public String toString() {  
-        String end = "-";
-        if(endTime != null){
+    public String toString() {
+        String end = "not yet";
+        if (!endTime.equals(startTime) ) {
             end = endTime.toString();
-        }               
-        return String.format("Id:%12s started:%-10s finished:%-10s \"%s\"", taskId, startTime.toString(), end, comment);
+        }
+        return String.format("Id:%12s   started:%-10s   finished:%-10s \"%s\"", taskId, startTime.toString(), end, comment);
     }
 
 }

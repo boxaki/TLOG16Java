@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import timelogger.excetions.EmptyTimeFieldException;
+import timelogger.excetions.NotExpectedTimeOrderException;
 
 /**
  *
@@ -17,35 +19,40 @@ import java.util.List;
  */
 public class Util {
 
-    public static LocalTime roundToMultipleQuarterHour(LocalTime startTime, LocalTime endTime) {
-        if(startTime == null){            
-            return null;
+    public static LocalTime roundToMultipleQuarterHour(LocalTime startTime, LocalTime endTime) throws EmptyTimeFieldException, NotExpectedTimeOrderException {
+        if (!isMultipleQuarterHour(startTime, endTime)) {
+            long duration = Duration.between(startTime, endTime).toMinutes();
+            long mod = duration % 15;
+            long roundedDuration = mod > 7 ? duration + 15 - mod : duration - mod;
+            endTime = startTime.plusMinutes(roundedDuration);
         }
-        if(endTime == null){
-            return null;
-        }
-
-        if (isMultipleQuarterHour(startTime, endTime)) {
-            return endTime;
-        }
-
-        long duration = Duration.between(startTime, endTime).toMinutes();
-        long mod = duration % 15;
-        long roundedDuration = mod > 7 ? duration + 15 - mod : duration - mod;
-
-        return startTime.plusMinutes(roundedDuration);
-
+        return endTime;
     }
 
-    public static boolean isSepatedTime(Task newTask, List<Task> tasks) {
-        Task matchingTask;
-     
+    public static boolean isSeparatedTime(Task newTask, List<Task> tasks) throws EmptyTimeFieldException {
+        //Task matchingTask;
+        LocalTime newTaskStartTime = newTask.getStartTime();
+        LocalTime newTaskEndTime = newTask.getEndTime();
+        /*
         matchingTask = tasks.stream()
-                .filter(task -> task.getStartTime().isBefore(newTask.getEndTime()) && newTask.getStartTime().isBefore(task.getEndTime()))
+                .filter(task -> task.getStartTime().isBefore(newTask.getEndTime()) && newTask.getStartTime().isBefore(task.getEndTime()))                
                 .findFirst()
                 .orElse(null);
-
-        return matchingTask == null;
+         */
+        for (Task existingTask : tasks) {
+            LocalTime existingTaskStartTime = existingTask.getStartTime();
+            LocalTime existingTaskEndTime = existingTask.getEndTime();
+            if( existingTaskStartTime.equals(existingTaskEndTime) && (!existingTaskStartTime.isBefore(newTaskStartTime) && existingTaskStartTime.isBefore(newTaskEndTime))){
+                return false;
+            }
+            if( newTaskStartTime.equals(newTaskEndTime) && (!newTaskStartTime.isBefore(existingTaskStartTime) && newTaskStartTime.isBefore(existingTaskEndTime)) ){
+                return false;                
+            }
+            if (existingTask.getStartTime().isBefore(newTask.getEndTime()) && newTask.getStartTime().isBefore(existingTask.getEndTime())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isWeekday(LocalDate actualDay) {
@@ -53,11 +60,17 @@ public class Util {
         return day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY;
     }
 
-    public static boolean isMultipleQuarterHour(LocalTime startTime, LocalTime endTime) {
+    public static boolean isMultipleQuarterHour(LocalTime startTime, LocalTime endTime) throws EmptyTimeFieldException, NotExpectedTimeOrderException {
+        if (startTime == null || endTime == null) {
+            throw new EmptyTimeFieldException();
+        }
+        if (startTime.isAfter(endTime)) {
+            throw new NotExpectedTimeOrderException();
+        }
         return isMultipleQuarterHour(Duration.between(startTime, endTime).toMinutes());
     }
 
-    public static boolean isMultipleQuarterHour(long minutes) {       
+    public static boolean isMultipleQuarterHour(long minutes) {
         return minutes % 15 == 0;
     }
 

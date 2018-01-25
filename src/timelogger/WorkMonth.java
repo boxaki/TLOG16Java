@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import timelogger.excetions.EmptyTimeFieldException;
+import timelogger.excetions.NotNewDateException;
+import timelogger.excetions.NotTheSameMonthException;
+import timelogger.excetions.WeekendNotEnabledException;
 
 /**
  *
@@ -38,7 +42,7 @@ public class WorkMonth {
         return date;
     }
 
-    public long getSumPerMonth() {
+    public long getSumPerMonth() throws EmptyTimeFieldException {
         
         sumPerMonth =0;
         for(WorkDay day : days){           
@@ -48,14 +52,14 @@ public class WorkMonth {
     }
 
     public long getRequiredMinPerMonth() {
-        requiredMinPerMonth = 0;
+        requiredMinPerMonth = 0;        
         for(WorkDay wd : days){
             requiredMinPerMonth += wd.getRequiredMinPerDay();
         }
         return requiredMinPerMonth;
     }
 
-    public long getExtraMinPerMonth() {
+    public long getExtraMinPerMonth() throws EmptyTimeFieldException {
         long extraMinPerMonth = 0;
         for (WorkDay actualDay : days) {
             extraMinPerMonth += actualDay.getExtraMinPerDay();
@@ -79,19 +83,29 @@ public class WorkMonth {
         return newWorkDayYearMonth.equals(date);
     }
 
-    public void addWorkDay(WorkDay wd) {
+    public void addWorkDay(WorkDay wd) throws WeekendNotEnabledException, NotNewDateException, NotTheSameMonthException {
         addWorkDay(wd, WEEKEND_DISABLED);      
 
     }
 
-    public void addWorkDay(WorkDay wd, boolean isWeekendEnabled) {
+    public void addWorkDay(WorkDay wd, boolean isWeekendEnabled) throws WeekendNotEnabledException, NotNewDateException, NotTheSameMonthException {       
+        
         if (isWeekendEnabled || Util.isWeekday(wd.getActualDay())) {
-            if (isSameMonth(wd) && isNewDate(wd)) {
+            if (isSameMonth(wd)) {
                 
-                days.add(wd);
-                Collections.sort(days, Comparator.comparing(WorkDay::getActualDay));
-                 
+                if (isNewDate(wd)) {
+                    days.add(wd);                 
+                    Collections.sort(days, Comparator.comparing(WorkDay::getActualDay));
+                } else {
+                    throw new NotNewDateException("Date already exists!");
+                }
+            }else{
+                throw new NotTheSameMonthException("Workday is not in the month!");
             }
+            
+        }
+        else{
+            throw new WeekendNotEnabledException("Weekend date cannot be set!");
         }
     }
 }
