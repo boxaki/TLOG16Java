@@ -10,8 +10,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import timelogger.excetions.EmptyTimeFieldException;
 import timelogger.excetions.FutureWorkException;
 import timelogger.excetions.InvalidTaskIdException;
