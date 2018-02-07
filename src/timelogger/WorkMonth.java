@@ -19,9 +19,11 @@ import timelogger.excetions.WeekendNotEnabledException;
  *
  * @author Akos Varga
  */
+@lombok.Getter
 public class WorkMonth {
 
     private final static boolean WEEKEND_DISABLED = false;
+    
     private final List<WorkDay> days;
     private final YearMonth date;
     private long sumPerMonth;
@@ -33,7 +35,7 @@ public class WorkMonth {
         requiredMinPerMonth = 0;
         sumPerMonth = 0;
     }
-
+    /*
     public List<WorkDay> getDays() {
         return days;
     }
@@ -41,7 +43,7 @@ public class WorkMonth {
     public YearMonth getDate() {
         return date;
     }
-
+*/
     public long getSumPerMonth() throws EmptyTimeFieldException {
         
         sumPerMonth =0;

@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -16,6 +17,8 @@ import timelogger.excetions.NotExpectedTimeOrderException;
  *
  * @author Akos Varga
  */
+@lombok.Getter
+@lombok.Setter
 public class Task {
 
     private static final String VALID_REDMINE_TASKID = "\\d{4}";
@@ -43,11 +46,11 @@ public class Task {
     public Task(String taskId, int startHour, int startMin, int endHour, int endMin, String comment) throws NotExpectedTimeOrderException, EmptyTimeFieldException, InvalidTaskIdException, NoTaskIdException {
         this(taskId, String.format("%02d:%02d", startHour, startMin), String.format("%02d:%02d", endHour, endMin), comment);
     }
-
+    /*
     public String getTaskId() {
         return taskId;
     }
-
+*/
     public final void setTaskId(String taskId) throws InvalidTaskIdException, NoTaskIdException {
         if (taskId == null) {
             throw new NoTaskIdException("Missing task id!");
@@ -69,11 +72,11 @@ public class Task {
     private static boolean isValidLTTaskId(String taskId) {
         return taskId.matches(VALID_LT_TASKID);
     }
-
+    /*
     public LocalTime getStartTime(){       
         return startTime;
     }
-
+*/
     public void setStartTime(int startHour, int startMin) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
         setStartTime(LocalTime.of(startHour, startMin));
     }
@@ -95,7 +98,7 @@ public class Task {
 
     public LocalTime getEndTime() throws EmptyTimeFieldException {
         if (endTime == null) {
-            throw new EmptyTimeFieldException("Missing end time");
+            throw new EmptyTimeFieldException("Missing end time!");
         }
         return endTime;
     }
@@ -121,11 +124,11 @@ public class Task {
 
         this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
     }
-
+/*
     public String getComment() {
         return comment;
     }
-
+*/
     public final void setComment(String comment) {
         if (comment == null) {
             comment = "";

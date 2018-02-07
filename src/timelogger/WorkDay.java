@@ -20,6 +20,7 @@ import timelogger.excetions.NotSeparatedTimesException;
  *
  * @author Akos Varga
  */
+@lombok.Getter
 public class WorkDay {
 
     private final static int DEFAULT_REQUIRED_MIN_PER_DAY = 450;
@@ -52,11 +53,11 @@ public class WorkDay {
         this(year, month, day);
         setRequiredMinOrThrowIfNegative(requiredMinPerDay);        
     }
- 
+ /*
     public List<Task> getTasks() {
         return tasks;
     }
-
+*/
     public void addTask(Task t) throws EmptyTimeFieldException, NotSeparatedTimesException {
         if (Util.isSeparatedTime(t, tasks)) {
             if (Util.isMultipleQuarterHour(t.getMinPerTask())) {
@@ -67,19 +68,19 @@ public class WorkDay {
             throw new NotSeparatedTimesException("Time intervals overlapping each other!");
         }
     }
-
+/*
     public long getRequiredMinPerDay() {
         return requiredMinPerDay;
     }
-
+*/
     public void setRequiredMinPerDay(long requiredMinPerDay) throws NegativeMinutesOfWorkException {
         setRequiredMinOrThrowIfNegative(requiredMinPerDay);        
     }
-
+/*
     public LocalDate getActualDay() {
         return actualDay;
     }
-
+*/
     public void setActualDay(int year, int month, int day) throws FutureWorkException {
         LocalDate dayToSet = LocalDate.of(year, month, day);
         setActualDayOrThrowIfFutureDay(dayToSet);        

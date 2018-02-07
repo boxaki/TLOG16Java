@@ -15,6 +15,7 @@ import timelogger.excetions.NotNewMonthException;
  *
  * @author Akos Varga
  */
+@lombok.Getter
 public class TimeLogger {
 
     private final List<WorkMonth> months;
@@ -22,11 +23,11 @@ public class TimeLogger {
     public TimeLogger(){
         months = new ArrayList<>();
     }
-
+/*
     public List<WorkMonth> getMonths() {
         return months;
     }
-
+*/
     private boolean isNewMonth(WorkMonth monthToCheck) {
         for (WorkMonth existingMonth : months) {
             if (existingMonth.getDate().equals(monthToCheck.getDate())) {
