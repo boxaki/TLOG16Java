@@ -1,19 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package timelogger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import timelogger.excetions.NotNewMonthException;
+import java.util.*;
+import timelogger.excetions.*;
 
 /**
- *
+ * Contains all the work months. 
+ * 
  * @author Akos Varga
+ * @version 0.5.0
  */
 @lombok.Getter
 public class TimeLogger {
@@ -23,11 +17,7 @@ public class TimeLogger {
     public TimeLogger(){
         months = new ArrayList<>();
     }
-/*
-    public List<WorkMonth> getMonths() {
-        return months;
-    }
-*/
+
     private boolean isNewMonth(WorkMonth monthToCheck) {
         for (WorkMonth existingMonth : months) {
             if (existingMonth.getDate().equals(monthToCheck.getDate())) {
@@ -37,6 +27,9 @@ public class TimeLogger {
         return true;
     }
     
+    /**
+     * @throws NotNewMonthException if month has already exists. 
+     */
     public void addNewMonth(WorkMonth monthToAdd) throws NotNewMonthException{
         if(isNewMonth(monthToAdd)){            
             months.add(monthToAdd);
