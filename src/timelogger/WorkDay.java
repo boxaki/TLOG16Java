@@ -1,24 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package timelogger;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import timelogger.excetions.EmptyTimeFieldException;
-import timelogger.excetions.FutureWorkException;
-import timelogger.excetions.NegativeMinutesOfWorkException;
-import timelogger.excetions.NotSeparatedTimesException;
+import java.time.*;
+import java.util.*;
+import timelogger.excetions.*;
 
 /**
+ * Represents a work day that can contain Task(s).
  *
  * @author Akos Varga
+ * @version 0.5.0
  */
 @lombok.Getter
 public class WorkDay {
@@ -31,6 +21,11 @@ public class WorkDay {
     private LocalDate actualDay;
     private long sumPerDay;
 
+    /**
+     * Constructs a <code>WorkDay</code> with default values. Sets the
+     * requiredMinPerDay to {@value #DEFAULT_REQUIRED_MIN_PER_DAY} and the
+     * default day to the actual day.
+     */
     public WorkDay() {
         this.tasks = new ArrayList<>();
         this.requiredMinPerDay = DEFAULT_REQUIRED_MIN_PER_DAY;
@@ -38,26 +33,46 @@ public class WorkDay {
         this.sumPerDay = 0;
     }
 
+    /**
+     * Construct an object with a user defined requiredMinPerDay and sets the
+     * day to the actual day;
+     *
+     * @throws NegativeMinutesOfWorkException if requiredMinPerDayIsNegative.
+     */
     public WorkDay(long requiredMinPerDay) throws NegativeMinutesOfWorkException {
         this();
         setRequiredMinOrThrowIfNegative(requiredMinPerDay);
     }
 
+    /**
+     * Constructs a WorkDay on any given not future date with requiredMinPerDay
+     * set to {@value #DEFAULT_REQUIRED_MIN_PER_DAY}.
+     *
+     * @throws FutureWorkException if the given date is in the future.
+     */
     public WorkDay(int year, int month, int day) throws FutureWorkException {
         this();
         LocalDate date = LocalDate.of(year, month, day);
-        setActualDayOrThrowIfFutureDay(date);        
+        setActualDayOrThrowIfFutureDay(date);
     }
 
+    /**
+     * Constructs a WorkDay on any given not future date with requiredMinPerDay
+     * set to a user defined value.
+     *
+     * @throws NegativeMinutesOfWorkException if requiredMinPerDayIsNegative.
+     * @throws FutureWorkException FutureWorkException if the given date is in
+     * the future.
+     */
     public WorkDay(long requiredMinPerDay, int year, int month, int day) throws NegativeMinutesOfWorkException, FutureWorkException {
         this(year, month, day);
-        setRequiredMinOrThrowIfNegative(requiredMinPerDay);        
+        setRequiredMinOrThrowIfNegative(requiredMinPerDay);
     }
- /*
-    public List<Task> getTasks() {
-        return tasks;
-    }
-*/
+
+    /**
+     * @throws NotSeparatedTimesException if the Task to add has a common time
+     * interval with existing Task(s).
+     */
     public void addTask(Task t) throws EmptyTimeFieldException, NotSeparatedTimesException {
         if (Util.isSeparatedTime(t, tasks)) {
             if (Util.isMultipleQuarterHour(t.getMinPerTask())) {
@@ -68,24 +83,27 @@ public class WorkDay {
             throw new NotSeparatedTimesException("Time intervals overlapping each other!");
         }
     }
-/*
-    public long getRequiredMinPerDay() {
-        return requiredMinPerDay;
-    }
-*/
+
+    /**
+     * @throws NegativeMinutesOfWorkException if requiredMinPerDayIsNegative.
+     */
     public void setRequiredMinPerDay(long requiredMinPerDay) throws NegativeMinutesOfWorkException {
-        setRequiredMinOrThrowIfNegative(requiredMinPerDay);        
-    }
-/*
-    public LocalDate getActualDay() {
-        return actualDay;
-    }
-*/
-    public void setActualDay(int year, int month, int day) throws FutureWorkException {
-        LocalDate dayToSet = LocalDate.of(year, month, day);
-        setActualDayOrThrowIfFutureDay(dayToSet);        
+        setRequiredMinOrThrowIfNegative(requiredMinPerDay);
     }
 
+    /**
+     * @throws FutureWorkException if the given date is in the future.
+     */
+    public void setActualDay(int year, int month, int day) throws FutureWorkException {
+        LocalDate dayToSet = LocalDate.of(year, month, day);
+        setActualDayOrThrowIfFutureDay(dayToSet);
+    }
+
+    /**
+     * 
+     * @return the sum of the work hours for the day in minutes. 
+     * @throws EmptyTimeFieldException if start time or end time is missing.
+     */
     public long getSumPerDay() throws EmptyTimeFieldException {
 
         sumPerDay = 0;
@@ -95,10 +113,16 @@ public class WorkDay {
         return sumPerDay;
     }
 
+    /**
+     * @return the difference between the sum of the work minutes and the required minutes for the day. 
+     */
     public long getExtraMinPerDay() throws EmptyTimeFieldException {
         return getSumPerDay() - getRequiredMinPerDay();
     }
 
+    /**
+     * @return the end time of the latest task for a day or return <code>null</code> if no tasks has been added.  
+     */
     public LocalTime getEndTimeOfLatestTask() throws EmptyTimeFieldException {
         if (tasks.isEmpty()) {
             return null;
