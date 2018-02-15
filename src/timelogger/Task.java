@@ -1,11 +1,7 @@
 package timelogger;
 
-import java.time.Duration;
-import java.time.LocalTime;
-import timelogger.excetions.EmptyTimeFieldException;
-import timelogger.excetions.InvalidTaskIdException;
-import timelogger.excetions.NoTaskIdException;
-import timelogger.excetions.NotExpectedTimeOrderException;
+import java.time.*;
+import timelogger.excetions.*;
 
 /**
  * Represents a task that has an id a time interval and an optional comment.
@@ -56,7 +52,7 @@ public class Task {
      */
     public Task(String taskId, String startTime, String endTime, String comment) throws NotExpectedTimeOrderException, EmptyTimeFieldException, InvalidTaskIdException, NoTaskIdException {
         this(taskId);
-        setStartTime(startTime);       
+        setStartTime(startTime);
         setEndTime(endTime);
         setComment(comment);
     }
@@ -120,22 +116,24 @@ public class Task {
      * <code>null</code>.
      */
     public final void setStartTime(String startTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
-        if(startTime == null){
-            throw new EmptyTimeFieldException("Missing start time!");            
-        }        
+        if (startTime == null) {
+            throw new EmptyTimeFieldException("Missing start time!");
+        }
         setStartTime(LocalTime.parse(startTime));
-       
     }
 
     /**
      * @throws NotExpectedTimeOrderException if the start time is after end
-     * time.    
+     * time.
      */
     public final void setStartTime(LocalTime startTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
-        //megirni, hogy dobjon empty time fieldet, ha a parameter null? 
-        if (endTime == null) {
+        if (startTime == null) {
+            throw new EmptyTimeFieldException("Missing start time!");
+        }
+
+        if (endTime == null || startTime.equals(endTime)) {
             this.startTime = startTime;
-        } else if (!startTime.isAfter(this.endTime)) {
+        } else if (startTime.isBefore(this.endTime)) {
             this.startTime = startTime;
             endTime = Util.roundToMultipleQuarterHour(this.startTime, endTime);
         } else {
@@ -157,7 +155,7 @@ public class Task {
      * @throws NotExpectedTimeOrderException if the start time is after end
      * time.
      */
-    public void setEndTime(int endHour, int endMin) throws NotExpectedTimeOrderException, EmptyTimeFieldException { //soha nem dob empty time fieldet
+    public void setEndTime(int endHour, int endMin) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
         setEndTime(LocalTime.of(endHour, endMin));
     }
 
@@ -184,14 +182,15 @@ public class Task {
      * <code>null</code>.
      */
     public final void setEndTime(LocalTime endTime) throws NotExpectedTimeOrderException, EmptyTimeFieldException {
+        if(endTime == null){
+           throw new EmptyTimeFieldException("Missing end time!"); 
+        }
 
         if (!startTime.isAfter(endTime)) {
             this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
         } else {
             throw new NotExpectedTimeOrderException("Start time must not be later than end time!");
         }
-
-        this.endTime = Util.roundToMultipleQuarterHour(startTime, endTime);
     }
 
     public final void setComment(String comment) {
