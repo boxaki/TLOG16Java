@@ -1,23 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package timelogger;
 
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import timelogger.excetions.EmptyTimeFieldException;
-import timelogger.excetions.NotNewDateException;
-import timelogger.excetions.NotTheSameMonthException;
-import timelogger.excetions.WeekendNotEnabledException;
+import java.time.*;
+import java.util.*;
+import timelogger.excetions.*;
 
 /**
- *
+ * Represents a work month. 
+ * 
  * @author Akos Varga
+ * @version 0.5.0
  */
 @lombok.Getter
 public class WorkMonth {
@@ -35,17 +26,12 @@ public class WorkMonth {
         requiredMinPerMonth = 0;
         sumPerMonth = 0;
     }
-    /*
-    public List<WorkDay> getDays() {
-        return days;
-    }
-
-    public YearMonth getDate() {
-        return date;
-    }
-*/
-    public long getSumPerMonth() throws EmptyTimeFieldException {
-        
+  
+    /**
+     * 
+     * @return the sum of the worked minutes for a month. 
+     */
+    public long getSumPerMonth() throws EmptyTimeFieldException {        
         sumPerMonth =0;
         for(WorkDay day : days){           
             sumPerMonth += day.getSumPerDay();
@@ -53,6 +39,9 @@ public class WorkMonth {
         return sumPerMonth;
     }
 
+    /**
+     * @return the required work minutes for a month. 
+     */
     public long getRequiredMinPerMonth() {
         requiredMinPerMonth = 0;        
         for(WorkDay wd : days){
@@ -61,14 +50,14 @@ public class WorkMonth {
         return requiredMinPerMonth;
     }
 
-    public long getExtraMinPerMonth() throws EmptyTimeFieldException {
-        long extraMinPerMonth = 0;
-        for (WorkDay actualDay : days) {
-            extraMinPerMonth += actualDay.getExtraMinPerDay();
-        }
-        return extraMinPerMonth;
+    /**
+     * 
+     * @return the extra minutes for a month, that is the difference between the sum of work minutes and required minutes. 
+     */
+    public long getExtraMinPerMonth() throws EmptyTimeFieldException {        
+        return getSumPerMonth() - getRequiredMinPerMonth();
     }
-
+    
     public boolean isNewDate(WorkDay newWorkDay) {
 
         WorkDay matchingDay = days.stream()
@@ -79,17 +68,34 @@ public class WorkMonth {
         return matchingDay == null;
     }
 
+    /**
+     * 
+     * @return <code>true</code> if the given day is in the same month or <code>false</code> otherwise.
+     */
     public boolean isSameMonth(WorkDay newWorkDay) {
         YearMonth newWorkDayYearMonth = YearMonth.from(newWorkDay.getActualDay());
 
         return newWorkDayYearMonth.equals(date);
     }
 
+    /**
+     * @param wd the new WorkDay to add. 
+     * @throws WeekendNotEnabledException if <code>wd</code> has a weekend date.
+     * @throws NotNewDateException if the day already exists. 
+     * @throws NotTheSameMonthException if <code>wd</code> is not in the same month.
+     */
     public void addWorkDay(WorkDay wd) throws WeekendNotEnabledException, NotNewDateException, NotTheSameMonthException {
         addWorkDay(wd, WEEKEND_DISABLED);      
 
     }
 
+    /**
+     * @param wd the new WorkDay to add. 
+     * @param isWeekendEnabled <code>true</code> if weekend work is allowed <code>false</code> otherwise. 
+     * @throws WeekendNotEnabledException if <code>wd</code> has a weekend date and <code>isWeekendEnabled</code> is set to <code>false</code>
+     * @throws NotNewDateException if the day already exists. 
+     * @throws NotTheSameMonthException if <code>wd</code> is not in the same month.
+     */
     public void addWorkDay(WorkDay wd, boolean isWeekendEnabled) throws WeekendNotEnabledException, NotNewDateException, NotTheSameMonthException {       
         
         if (isWeekendEnabled || Util.isWeekday(wd.getActualDay())) {
