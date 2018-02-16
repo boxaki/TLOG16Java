@@ -1,30 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package timelogger;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import timelogger.excetions.EmptyTimeFieldException;
-import timelogger.excetions.FutureWorkException;
-import timelogger.excetions.InvalidTaskIdException;
-import timelogger.excetions.NegativeMinutesOfWorkException;
-import timelogger.excetions.NoTaskIdException;
-import timelogger.excetions.NotExpectedTimeOrderException;
-import timelogger.excetions.NotNewDateException;
-import timelogger.excetions.NotNewMonthException;
-import timelogger.excetions.NotSeparatedTimesException;
-import timelogger.excetions.NotTheSameMonthException;
-import timelogger.excetions.WeekendNotEnabledException;
+import java.time.*;
+import java.util.*;
+import timelogger.excetions.*;
 
 /**
+ * Time logger program that helps keep record of daily tasks, and makes some
+ * basic calculations.
+ *
  *
  * @author Akos Varga
+ * @version 0.5.0
  */
 public class TimeLoggerUI {
 
@@ -36,7 +22,7 @@ public class TimeLoggerUI {
     private static TimeLogger timelogger;
 
     /**
-     * @param args the command line arguments
+     * @param args unused
      */
     public static void main(String[] args) {
         init();
@@ -70,7 +56,7 @@ public class TimeLoggerUI {
 
     }
 
-    private static void selectOption(int choice) { 
+    private static void selectOption(int choice) {
 
         switch (choice) {
             case 0:
@@ -143,7 +129,7 @@ public class TimeLoggerUI {
         }
 
         int index = 1;
-        for (WorkDay wd : days) {            
+        for (WorkDay wd : days) {
             System.out.println(index++ + ". " + wd.getActualDay().toString());
         }
 
@@ -370,11 +356,11 @@ public class TimeLoggerUI {
         }
     }
 
-    public static String getStringInput(String textToDisplay) {
+    private static String getStringInput(String textToDisplay) {
         return getStringInput(textToDisplay, "");
     }
 
-    public static String getStringInput(String textToDisplay, String defaultValue) {
+    private static String getStringInput(String textToDisplay, String defaultValue) {
 
         System.out.print(textToDisplay);
         Scanner in = new Scanner(System.in);
