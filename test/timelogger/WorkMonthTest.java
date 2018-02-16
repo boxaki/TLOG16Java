@@ -1,16 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package timelogger;
 
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
-import timelogger.excetions.EmptyTimeFieldException;
-import timelogger.excetions.NotNewDateException;
-import timelogger.excetions.NotTheSameMonthException;
-import timelogger.excetions.WeekendNotEnabledException;
+import timelogger.excetions.*;
 
 /**
  *
@@ -25,14 +17,14 @@ public class WorkMonthTest {
     @Test
     public void testGetSumPerMonth() throws Exception {
         Task t1 = new Task("1234", "07:30", "08:45", "first task");
-        WorkDay wd1 = new WorkDay(420);
+        WorkDay wd1 = new WorkDay(420, 2016, 9, 2);
         wd1.addTask(t1);
 
         Task t2 = new Task("1244", "08:45", "09:45", "second task");
-        WorkDay wd2 = new WorkDay(420, 2018, 1, 11);
+        WorkDay wd2 = new WorkDay(420, 2016, 9, 1);
         wd2.addTask(t2);
 
-        WorkMonth wm = new WorkMonth(2018, 1);
+        WorkMonth wm = new WorkMonth(2016, 9);
         wm.addWorkDay(wd1);
         wm.addWorkDay(wd2);
         long expectedMinutes = 135;
@@ -41,7 +33,7 @@ public class WorkMonthTest {
 
     //2
     @Test
-    public void testGetSumPerMonthWithoutDay() throws Exception {
+    public void testGetSumPerMonth_NoDay() throws Exception {
         long expectedSum = 0;
         WorkMonth wm = new WorkMonth(1700, 1);
         assertEquals(expectedSum, wm.getSumPerMonth());
@@ -51,14 +43,14 @@ public class WorkMonthTest {
     @Test
     public void testGetExtraMinPerMonth() throws Exception {
         Task t1 = new Task("1234", "07:30", "08:45", "first task");
-        WorkDay wd1 = new WorkDay(420);
+        WorkDay wd1 = new WorkDay(420, 2016, 9, 2);
         wd1.addTask(t1);
 
         Task t2 = new Task("1244", "08:45", "09:45", "second task");
-        WorkDay wd2 = new WorkDay(420, 2018, 1, 11);
+        WorkDay wd2 = new WorkDay(420, 2016, 9, 1);
         wd2.addTask(t2);
 
-        WorkMonth wm = new WorkMonth(2018, 1);
+        WorkMonth wm = new WorkMonth(2016, 9);
         wm.addWorkDay(wd1);
         wm.addWorkDay(wd2);
         long expectedMinutes = -705;
@@ -67,7 +59,7 @@ public class WorkMonthTest {
 
     //4
     @Test
-    public void testGetExtraMinPerMonthWithoutDay() throws Exception {
+    public void testGetExtraMinPerMonth_NoDay() throws Exception {
         long expectedSum = 0;
         WorkMonth wm = new WorkMonth(1700, 1);
         assertEquals(expectedSum, wm.getExtraMinPerMonth());
@@ -77,14 +69,14 @@ public class WorkMonthTest {
     @Test
     public void testGetRequiredMinPerMonth() throws Exception {
         Task t1 = new Task("1234", "07:30", "08:45", "first task");
-        WorkDay wd1 = new WorkDay(420);
+        WorkDay wd1 = new WorkDay(420, 2016, 9, 1);
         wd1.addTask(t1);
 
         Task t2 = new Task("1244", "08:45", "09:45", "second task");
-        WorkDay wd2 = new WorkDay(420, 2018, 1, 11);
+        WorkDay wd2 = new WorkDay(420, 2016, 9, 2);
         wd2.addTask(t2);
 
-        WorkMonth wm = new WorkMonth(2018, 1);
+        WorkMonth wm = new WorkMonth(2016, 9);
         wm.addWorkDay(wd1);
         wm.addWorkDay(wd2);
         long expectedMinutes = 840;
@@ -93,7 +85,7 @@ public class WorkMonthTest {
 
     //6
     @Test
-    public void testGetRequiredMinPerMonthWithoutDay() throws Exception {
+    public void testGetRequiredMinPerMonth_NoDay() throws Exception {
         long expectedMinutes = 0;
         WorkMonth wm = new WorkMonth(1700, 1);
         assertEquals(expectedMinutes, wm.getRequiredMinPerMonth());
@@ -101,11 +93,11 @@ public class WorkMonthTest {
 
     //7
     @Test
-    public void testSumPerMonthAndSumPerDayWithOneTask() throws Exception {
+    public void testAddWorkDay_WorkDay() throws Exception {
         Task t1 = new Task("1234", "07:30", "08:45", "first task");
-        WorkDay wd = new WorkDay(420, 2018, 1, 10);
+        WorkDay wd = new WorkDay(420, 2016, 9, 9);
         wd.addTask(t1);
-        WorkMonth wm = new WorkMonth(2018, 1);
+        WorkMonth wm = new WorkMonth(2016, 9);
         wm.addWorkDay(wd);
 
         assertEquals(wd.getSumPerDay(), wm.getSumPerMonth());
@@ -113,11 +105,11 @@ public class WorkMonthTest {
 
     //8
     @Test
-    public void testGetRequiredMinPerMonth_() throws Exception {
+    public void testWorkDay_WorkDay_boolean_weekend_true() throws Exception {
         Task t1 = new Task("1234", "07:30", "08:45", "first task");
-        WorkDay wd = new WorkDay(420, 2018, 1, 14);
+        WorkDay wd = new WorkDay(420, 2016, 8, 28);
         wd.addTask(t1);
-        WorkMonth wm = new WorkMonth(2018, 1);
+        WorkMonth wm = new WorkMonth(2016, 8);
         wm.addWorkDay(wd, true);
 
         assertEquals(wd.getSumPerDay(), wm.getSumPerMonth());
@@ -125,11 +117,11 @@ public class WorkMonthTest {
 
     //9
     @Test(expected = WeekendNotEnabledException.class)
-    public void testAddWeekendDayAndWeekendDisabled() throws Exception {
+    public void testWorkDay_WorkDay_boolean_weekend_false() throws Exception {
         Task t1 = new Task("1234", "07:30", "08:45", "first task");
-        WorkDay wd = new WorkDay(420, 2018, 1, 14);
+        WorkDay wd = new WorkDay(420, 2016, 8, 28);
         wd.addTask(t1);
-        WorkMonth wm = new WorkMonth(2018, 1);
+        WorkMonth wm = new WorkMonth(2016, 8);
         wm.addWorkDay(wd, false);
     }
 
@@ -146,7 +138,7 @@ public class WorkMonthTest {
 
     //11
     @Test(expected = NotTheSameMonthException.class)
-    public void testAddWorkDayOnDifferentMonth() throws Exception {
+    public void testAddWorkDay_DifferentMonth() throws Exception {
         WorkDay wd1 = new WorkDay(2016, 9, 1);
         WorkDay wd2 = new WorkDay(2016, 8, 30);
 
@@ -157,20 +149,18 @@ public class WorkMonthTest {
 
     //12 
     @Test(expected = EmptyTimeFieldException.class)
-    public void testGetSumPerMonthOnEmptyField() throws Exception{
+    public void testGetSumPerMonth_NoTimeSet() throws Exception{
         Task t = new Task("1234");
         WorkDay wd = new WorkDay(2018, 1, 10);
         WorkMonth wm = new WorkMonth(2018, 1);
         wd.addTask(t);          
         wm.addWorkDay(wd);
-        wm.getSumPerMonth();
-        
+        wm.getSumPerMonth();        
     }
-    
     
     //13
     @Test(expected = EmptyTimeFieldException.class)
-    public void testGetExtraMinPerMonthOnEmptyField() throws Exception{
+    public void testGetExtraMinPerMonth_NoTimeSet() throws Exception{
         Task t = new Task("1234");
         WorkDay wd = new WorkDay(2018, 1, 10);
         WorkMonth wm = new WorkMonth(2018, 1);

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package timelogger;
 
 import org.junit.Test;
@@ -20,7 +15,7 @@ public class TimeLoggerTest {
 
     //1
     @Test
-    public void testOneTaskForMonths() throws Exception {
+    public void testAddNewMonth() throws Exception {
         WorkDay wd = new WorkDay(2016, 4, 14);
         WorkMonth wm = new WorkMonth(2016, 4);
         Task t = new Task("1234", "07:30", "10:30", "task");
@@ -34,7 +29,7 @@ public class TimeLoggerTest {
 
     //2
     @Test(expected = NotNewMonthException.class)
-    public void testAddNotNewMonth() throws Exception{
+    public void testAddNewMonth_NotNewMonth() throws Exception{
         WorkMonth wm1 = new WorkMonth(2016, 4);
         WorkMonth wm2 = new WorkMonth(2016, 4);
         TimeLogger tl = new TimeLogger();
