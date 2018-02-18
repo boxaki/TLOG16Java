@@ -1,8 +1,18 @@
-package timelogger;
+package timelogger2;
 
+import timelogger2.exceptions.NotExpectedTimeOrderException;
+import timelogger2.exceptions.FutureWorkException;
+import timelogger2.exceptions.InvalidTaskIdException;
+import timelogger2.exceptions.NoTaskIdException;
+import timelogger2.exceptions.NegativeMinutesOfWorkException;
+import timelogger2.exceptions.EmptyTimeFieldException;
 import java.time.*;
 import java.util.*;
-import timelogger.excetions.*;
+import timelogger2.exceptions.NotNewDateException;
+import timelogger2.exceptions.NotNewMonthException;
+import timelogger2.exceptions.NotSeparatedTimesException;
+import timelogger2.exceptions.NotTheSameMonthException;
+import timelogger2.exceptions.WeekendNotEnabledException;
 
 /**
  * Time logger program that helps keep record of daily tasks, and makes some
@@ -20,6 +30,7 @@ public class TimeLoggerUI {
     private static final int MAX_ACCEPTED_YEAR = LocalDate.now().getYear();
     private static final String STATISTICS_OUTPUT_FORMAT = "%18s %18s %18s %18s\n";
     private static TimeLogger timelogger;
+    private static Scanner in;
 
     /**
      * @param args unused
@@ -39,6 +50,7 @@ public class TimeLoggerUI {
 
     private static void init() {
         timelogger = new TimeLogger();
+        in = new Scanner(System.in);
     }
 
     private static void printMainMenu() {
@@ -362,9 +374,19 @@ public class TimeLoggerUI {
 
     private static String getStringInput(String textToDisplay, String defaultValue) {
 
+        System.out.println();
+        //System.err.println(textToDisplay);
+        
+        
+        //System.out.printf("%s ", textToDisplay);
+        //System.out.print("Dajaja");
         System.out.print(textToDisplay);
-        Scanner in = new Scanner(System.in);
+        System.out.close();
+        //System.out.println("");
+        //System.out.flush();
+        //Scanner in = new Scanner(System.in);
         String input = in.nextLine().trim();
+        
 
         if (!defaultValue.isEmpty() && input.isEmpty()) {
             input = defaultValue;
@@ -497,7 +519,7 @@ public class TimeLoggerUI {
     }
 
     private static void pressEnterToContinue() {
-        Scanner in = new Scanner(System.in);
+        //Scanner in = new Scanner(System.in);
         System.out.println("Press Enter to continue...");
         in.nextLine();
     }

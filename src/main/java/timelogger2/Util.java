@@ -1,8 +1,9 @@
-package timelogger;
+package timelogger2;
 
+import timelogger2.exceptions.NotExpectedTimeOrderException;
+import timelogger2.exceptions.EmptyTimeFieldException;
 import java.time.*;
 import java.util.*;
-import timelogger.excetions.*;
 
 /**
  *

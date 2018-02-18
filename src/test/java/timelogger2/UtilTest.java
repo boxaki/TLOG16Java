@@ -1,12 +1,14 @@
-package timelogger;
+package timelogger2;
 
+import timelogger2.Task;
+import timelogger2.Util;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import timelogger.excetions.EmptyTimeFieldException;
-import timelogger.excetions.NotExpectedTimeOrderException;
+import timelogger2.exceptions.EmptyTimeFieldException;
+import timelogger2.exceptions.NotExpectedTimeOrderException;
 
 /**
  *

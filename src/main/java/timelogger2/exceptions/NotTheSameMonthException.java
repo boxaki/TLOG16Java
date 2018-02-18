@@ -1,4 +1,4 @@
-package timelogger.excetions;
+package timelogger2.exceptions;
 
 /**
  *

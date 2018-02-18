@@ -1,8 +1,11 @@
-package timelogger;
+package timelogger2;
 
+import timelogger2.exceptions.EmptyTimeFieldException;
 import java.time.*;
 import java.util.*;
-import timelogger.excetions.*;
+import timelogger2.exceptions.NotNewDateException;
+import timelogger2.exceptions.NotTheSameMonthException;
+import timelogger2.exceptions.WeekendNotEnabledException;
 
 /**
  * Represents a work month. 

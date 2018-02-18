@@ -1,8 +1,14 @@
-package timelogger;
+package timelogger2;
 
+import timelogger2.WorkMonth;
+import timelogger2.Task;
+import timelogger2.WorkDay;
+import timelogger2.exceptions.EmptyTimeFieldException;
 import org.junit.*;
 import static org.junit.Assert.*;
-import timelogger.excetions.*;
+import timelogger2.exceptions.NotNewDateException;
+import timelogger2.exceptions.NotTheSameMonthException;
+import timelogger2.exceptions.WeekendNotEnabledException;
 
 /**
  *

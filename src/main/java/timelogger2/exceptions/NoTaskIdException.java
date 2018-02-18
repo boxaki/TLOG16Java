@@ -1,17 +1,16 @@
-package timelogger.excetions; 
+package timelogger2.exceptions;
 
 /**
- * Thrown when the format of the task Id is not valid
- * 
+ *
  * @author Akos Varga
  */
-public class InvalidTaskIdException extends Exception {
+public class NoTaskIdException extends Exception {
 
     /**
      * Creates a new instance of <code>NoTaskIdException</code> without detail
      * message.
      */
-    public InvalidTaskIdException() {
+    public NoTaskIdException() {
     }
 
     /**
@@ -20,7 +19,7 @@ public class InvalidTaskIdException extends Exception {
      *
      * @param msg the detail message.
      */
-    public InvalidTaskIdException(String msg) {
+    public NoTaskIdException(String msg) {
         super(msg);
     }
 }
