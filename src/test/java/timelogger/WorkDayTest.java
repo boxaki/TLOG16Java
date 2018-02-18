@@ -1,14 +1,12 @@
-package timelogger2;
+package timelogger;
 
-import timelogger2.Task;
-import timelogger2.WorkDay;
-import timelogger2.exceptions.FutureWorkException;
-import timelogger2.exceptions.EmptyTimeFieldException;
-import timelogger2.exceptions.NegativeMinutesOfWorkException;
+import timelogger.exceptions.FutureWorkException;
+import timelogger.exceptions.EmptyTimeFieldException;
+import timelogger.exceptions.NegativeMinutesOfWorkException;
 import java.time.*;
 import org.junit.*;
 import static org.junit.Assert.*;
-import timelogger2.exceptions.NotSeparatedTimesException;
+import timelogger.exceptions.NotSeparatedTimesException;
 
 /**
  *

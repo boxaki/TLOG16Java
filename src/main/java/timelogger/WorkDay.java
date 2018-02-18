@@ -1,11 +1,11 @@
-package timelogger2;
+package timelogger;
 
-import timelogger2.exceptions.FutureWorkException;
-import timelogger2.exceptions.NegativeMinutesOfWorkException;
-import timelogger2.exceptions.EmptyTimeFieldException;
+import timelogger.exceptions.FutureWorkException;
+import timelogger.exceptions.NegativeMinutesOfWorkException;
+import timelogger.exceptions.EmptyTimeFieldException;
 import java.time.*;
 import java.util.*;
-import timelogger2.exceptions.NotSeparatedTimesException;
+import timelogger.exceptions.NotSeparatedTimesException;
 
 /**
  * Represents a work day that can contain Task(s).

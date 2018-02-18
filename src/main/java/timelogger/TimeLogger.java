@@ -1,7 +1,7 @@
-package timelogger2;
+package timelogger;
 
 import java.util.*;
-import timelogger2.exceptions.NotNewMonthException;
+import timelogger.exceptions.NotNewMonthException;
 
 /**
  * Contains all the work months. 

@@ -13,7 +13,7 @@ sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if (!hasProperty('mainClass')) {
-    ext.mainClass = 'timelogger2.TimeLoggerUI'
+    ext.mainClass = 'timelogger.TimeLoggerUI'
 }
 
 repositories {
@@ -37,7 +37,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'TimeLogger with text UI',
         	'Implementation-Version': project.version,
-        	'Main-Class': 'timelogger2.TimeLoggerUI'
+        	'Main-Class': 'timelogger.TimeLoggerUI'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

@@ -1,9 +1,9 @@
-package timelogger2;
+package timelogger;
 
-import timelogger2.exceptions.NotExpectedTimeOrderException;
-import timelogger2.exceptions.InvalidTaskIdException;
-import timelogger2.exceptions.NoTaskIdException;
-import timelogger2.exceptions.EmptyTimeFieldException;
+import timelogger.exceptions.NotExpectedTimeOrderException;
+import timelogger.exceptions.InvalidTaskIdException;
+import timelogger.exceptions.NoTaskIdException;
+import timelogger.exceptions.EmptyTimeFieldException;
 import java.time.*;
 
 /**

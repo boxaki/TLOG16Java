@@ -1,4 +1,4 @@
-package timelogger2.exceptions; 
+package timelogger.exceptions; 
 
 /**
  * Thrown when the format of the task Id is not valid

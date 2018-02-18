@@ -1,18 +1,18 @@
-package timelogger2;
+package timelogger;
 
-import timelogger2.exceptions.NotExpectedTimeOrderException;
-import timelogger2.exceptions.FutureWorkException;
-import timelogger2.exceptions.InvalidTaskIdException;
-import timelogger2.exceptions.NoTaskIdException;
-import timelogger2.exceptions.NegativeMinutesOfWorkException;
-import timelogger2.exceptions.EmptyTimeFieldException;
+import timelogger.exceptions.NotExpectedTimeOrderException;
+import timelogger.exceptions.FutureWorkException;
+import timelogger.exceptions.InvalidTaskIdException;
+import timelogger.exceptions.NoTaskIdException;
+import timelogger.exceptions.NegativeMinutesOfWorkException;
+import timelogger.exceptions.EmptyTimeFieldException;
 import java.time.*;
 import java.util.*;
-import timelogger2.exceptions.NotNewDateException;
-import timelogger2.exceptions.NotNewMonthException;
-import timelogger2.exceptions.NotSeparatedTimesException;
-import timelogger2.exceptions.NotTheSameMonthException;
-import timelogger2.exceptions.WeekendNotEnabledException;
+import timelogger.exceptions.NotNewDateException;
+import timelogger.exceptions.NotNewMonthException;
+import timelogger.exceptions.NotSeparatedTimesException;
+import timelogger.exceptions.NotTheSameMonthException;
+import timelogger.exceptions.WeekendNotEnabledException;
 
 /**
  * Time logger program that helps keep record of daily tasks, and makes some
@@ -375,18 +375,13 @@ public class TimeLoggerUI {
     private static String getStringInput(String textToDisplay, String defaultValue) {
 
         System.out.println();
-        //System.err.println(textToDisplay);
-        
-        
-        //System.out.printf("%s ", textToDisplay);
-        //System.out.print("Dajaja");
+        //System.err.println(textToDisplay);       
+        //System.out.printf("%s ", textToDisplay);                
         System.out.print(textToDisplay);
-        System.out.close();
         //System.out.println("");
         //System.out.flush();
         //Scanner in = new Scanner(System.in);
         String input = in.nextLine().trim();
-        
 
         if (!defaultValue.isEmpty() && input.isEmpty()) {
             input = defaultValue;

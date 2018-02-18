@@ -1,12 +1,8 @@
-package timelogger2;
+package timelogger;
 
-import timelogger2.TimeLogger;
-import timelogger2.WorkMonth;
-import timelogger2.Task;
-import timelogger2.WorkDay;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import timelogger2.exceptions.NotNewMonthException;
+import timelogger.exceptions.NotNewMonthException;
 
 /**
  *
